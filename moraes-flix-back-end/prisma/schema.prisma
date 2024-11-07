@@ -1,0 +1,54 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(uuid())
+  name          String
+  email         String   @unique
+  password_hash String  
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  reviews       Review[]
+  movies        Movie[]  
+
+  @@map("users")
+}
+
+model Movie {
+    id          String   @id @default(uuid())
+    title       String
+    description String
+    genre       String
+    releaseYear Int @map("release_year")
+    duration    Int
+    createdAt   DateTime @default(now()) @map("created_at")
+    updatedAt   DateTime @updatedAt @map("updated_at")
+
+    reviews     Review[]
+
+    userId      String   @map("user_id")
+    user        User     @relation(fields: [userId], references: [id])
+
+    @@map("movies")
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  rating    Int     
+  comment   String? 
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @map("updated_at")
+
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id])
+  movieId   String   @map("movie_id")
+  movie     Movie    @relation(fields: [movieId], references: [id])
+
+  @@map("reviews")
+}
